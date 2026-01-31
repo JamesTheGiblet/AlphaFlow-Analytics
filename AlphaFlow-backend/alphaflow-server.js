@@ -404,7 +404,7 @@ app.get('/api/export/csv', (req, res) => {
             const total = rel.successfulFollows + rel.missedFollows;
             
             if (total > 0) {
-                csv += `,,${rel.successfulFollows},${rel.missedFollows},${rel.followRate.toFixed(3)},${rel.avgLag.toFixed(0)},${rel.avgMagnitude.toFixed(3)},${rel.lagTimes.length}\n`;
+                csv += `${leader},${follower},${rel.successfulFollows},${rel.missedFollows},${rel.followRate.toFixed(3)},${rel.avgLag.toFixed(0)},${rel.avgMagnitude.toFixed(3)},${rel.lagTimes.length}\n`;
             }
         });
     });
@@ -430,7 +430,7 @@ app.get('/api/health', (req, res) => {
 // Start the server
 server.listen(PORT, () => {
     console.log(`🚀 CryptoSoup Backend running on port ${PORT}`);
-    console.log(`� Tracking ${COINS.length} coins`);
+    console.log(`📊 Tracking ${COINS.length} coins`);
     console.log(`🔌 WebSocket server attached to HTTP server`);
     
     // Start Coinbase connection
