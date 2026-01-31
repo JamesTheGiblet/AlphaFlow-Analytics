@@ -2,10 +2,10 @@
   "name": "alphaflow-analytics",
   "version": "1.0.0",
   "description": "AlphaFlow Causality Detection Backend",
-  "main": "AlphaFlow-backend/alphaflow-server.js",
+  "main": "AlphaFlow-backend/AlphaFlow-server.js",
   "scripts": {
-    "start": "node AlphaFlow-backend/alphaflow-server.js",
-    "dev": "nodemon AlphaFlow-backend/alphaflow-server.js"
+    "start": "node AlphaFlow-backend/AlphaFlow-server.js",
+    "dev": "nodemon AlphaFlow-backend/AlphaFlow-server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
