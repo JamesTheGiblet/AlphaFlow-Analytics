@@ -1,5 +1,7 @@
 node_modules
 npm-debug.log
+Dockerfile
 .git
-.env
-Staticfile
+.gitignore
+AlphaFlow-backend/data
+Package.json

@@ -444,7 +444,7 @@ app.get('/api/export/csv', (req, res) => {
             const total = rel.successfulFollows + rel.missedFollows;
             
             if (total > 0) {
-                csv += `,,${rel.successfulFollows},${rel.missedFollows},${rel.followRate.toFixed(3)},${rel.avgLag.toFixed(0)},${rel.avgMagnitude.toFixed(3)},${rel.lagTimes.length}\n`;
+                csv += `${leader},${follower},${rel.successfulFollows},${rel.missedFollows},${rel.followRate.toFixed(3)},${rel.avgLag.toFixed(0)},${rel.avgMagnitude.toFixed(3)},${rel.lagTimes.length}\n`;
             }
         });
     });
