@@ -1,5 +1,5 @@
 {
-  "name": "AlphaFlow-backend",
+  "name": "alphaflow-analytics",
   "version": "1.0.0",
   "description": "AlphaFlow Causality Detection Backend",
   "main": "AlphaFlow-backend/alphaflow-server.js",
@@ -11,9 +11,13 @@
     "express": "^4.18.2",
     "ws": "^8.13.0",
     "axios": "^1.5.0",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
