@@ -38,6 +38,21 @@ function showNotification(message, type) {
     }, 3000);
 }
 
+// Dynamic Navigation Highlighting
+document.addEventListener('DOMContentLoaded', () => {
+    const currentPage = window.location.pathname.split('/').pop();
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    navLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === currentPage) {
+            link.classList.add('active');
+        } else if (href && !href.startsWith('#')) {
+            link.classList.remove('active');
+        }
+    });
+});
+
 // =========================================
 // Dashboard Logic (index.html)
 // =========================================
