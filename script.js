@@ -458,7 +458,7 @@ if (document.getElementById('soupCanvas')) {
     updateUI();
     drawNetwork();
     connectToBackend();
-    setInterval(fetchCausalityData, 2000); // Poll for causality updates
+    setInterval(fetchCausalityData, 10000); // Poll for causality updates
     setInterval(drawNetwork, 100);
 }
 

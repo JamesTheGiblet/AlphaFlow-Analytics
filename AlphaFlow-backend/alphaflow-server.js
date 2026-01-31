@@ -15,12 +15,6 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Logging middleware to debug requests
-app.use((req, res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-    next();
-});
-
 // 1. Serve the Dashboard HTML on root (Priority over static index.html)
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'AlphaFlow.html'), (err) => {
@@ -58,6 +52,11 @@ app.get('/alphaflow-backtesting.html', (req, res) => {
         if (err) console.error('Error serving alphaflow-backtesting.html:', err);
     });
 });
+app.get('/pricing', (req, res) => {
+    res.sendFile(path.join(parentDir, 'index.html'), (err) => {
+        if (err) console.error('Error serving index.html:', err);
+    });
+});
 
 // 4. Serve static files from public directory (assets, etc.)
 app.use(express.static(path.join(__dirname, 'public')));
@@ -71,7 +70,7 @@ const COINS = [
     'LTC-USD', '1INCH-USD', 'BAT-USD', 'COMP-USD'
 ];
 
-const MOVE_THRESHOLD = 2.0; // 2.0% move threshold (Increased to reduce noise)
+const MOVE_THRESHOLD = 1.5; // 1.5% move threshold (Significant events only)
 const LAG_WINDOW = 300000; // 5 minutes
 const SAVE_INTERVAL = 60000; // Save data every 60 seconds
 const BROADCAST_INTERVAL = 500; // Batch updates every 500ms
@@ -162,6 +161,37 @@ function connectToCoinbase() {
     });
 }
 
+// Adaptive threshold based on rolling volatility
+function calculateStdDev(values) {
+    if (values.length < 2) return 0;
+    const mean = values.reduce((a, b) => a + b, 0) / values.length;
+    const variance = values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / (values.length - 1);
+    return Math.sqrt(variance);
+}
+
+function getVolatility(symbol) {
+    const history = marketData.priceHistory[symbol];
+    if (!history || history.length < 2) return 0;
+    
+    const recentPrices = history.slice(-21);
+    const returns = [];
+    for (let i = 1; i < recentPrices.length; i++) {
+        returns.push(((recentPrices[i] - recentPrices[i-1]) / recentPrices[i-1]) * 100);
+    }
+    return calculateStdDev(returns);
+}
+
+function getAdaptiveThreshold(symbol, baseThreshold = 1.5) {
+    const volatility = getVolatility(symbol);
+    return Math.max(volatility * 2, baseThreshold); // 2-sigma moves
+}
+
+function getNormalizedMagnitudeRatio(leaderMove, followerMove, leaderSymbol, followerSymbol) {
+    const leaderVol = getVolatility(leaderSymbol) || 1;
+    const followerVol = getVolatility(followerSymbol) || 1;
+    return Math.abs((followerMove / followerVol) / (leaderMove / leaderVol));
+}
+
 function processTickerUpdate(ticker) {
     const coin = ticker.product_id;
     const price = parseFloat(ticker.price);
@@ -188,7 +218,8 @@ function processTickerUpdate(ticker) {
     // ===== CAUSALITY DETECTION =====
     
     // Detect leader events (significant moves)
-    if (Math.abs(changePercent) >= MOVE_THRESHOLD) {
+    const adaptiveThreshold = getAdaptiveThreshold(coin, MOVE_THRESHOLD);
+    if (Math.abs(changePercent) >= adaptiveThreshold) {
         const leaderEvent = {
             timestamp: timestamp,
             leader: coin,
@@ -218,7 +249,7 @@ function processTickerUpdate(ticker) {
                                      (changePercent < 0 && leaderEvent.changePercent < 0);
                 
                 if (sameDirection) {
-                    const magnitudeRatio = Math.abs(changePercent / leaderEvent.changePercent);
+                    const magnitudeRatio = getNormalizedMagnitudeRatio(leaderEvent.changePercent, changePercent, leaderEvent.leader, coin);
                     const relationship = marketData.causalityMatrix[leaderEvent.leader][coin];
                     
                     relationship.lagTimes.push(lagTime);
@@ -289,6 +320,19 @@ function broadcastToClients(data) {
 // Data persistence
 const DATA_DIR = path.join(__dirname, 'data');
 
+function cleanupEvents() {
+    const now = Date.now();
+    const initialCount = marketData.leaderEvents.length;
+    
+    marketData.leaderEvents = marketData.leaderEvents.filter(
+        e => now - e.timestamp < LAG_WINDOW
+    );
+    
+    if (marketData.leaderEvents.length < initialCount) {
+        console.log(`🧹 Pruned ${initialCount - marketData.leaderEvents.length} expired leader events`);
+    }
+}
+
 function saveData(skipCleanup = false) {
     const dataToSave = {
         marketData: marketData,
@@ -337,6 +381,7 @@ if (!fs.existsSync(DATA_DIR)) {
 
 // Set up periodic data saving
 setInterval(saveData, SAVE_INTERVAL);
+setInterval(cleanupEvents, 60000);
 
 // Set up periodic client broadcasting
 setInterval(() => {
