@@ -71,7 +71,7 @@ const COINS = [
     'LTC-USD', '1INCH-USD', 'BAT-USD', 'COMP-USD'
 ];
 
-const MOVE_THRESHOLD = 0.02; // 2.0% move threshold (Increased to reduce noise)
+const MOVE_THRESHOLD = 2.0; // 2.0% move threshold (Increased to reduce noise)
 const LAG_WINDOW = 300000; // 5 minutes
 const SAVE_INTERVAL = 60000; // Save data every 60 seconds
 const BROADCAST_INTERVAL = 500; // Batch updates every 500ms
@@ -473,8 +473,11 @@ server.listen(PORT, '0.0.0.0', () => {
     console.log(`� Tracking ${COINS.length} coins`);
     console.log(`🔌 WebSocket server attached to HTTP server`);
     
-    // Start Coinbase connection
-    connectToCoinbase();
+    // Start Coinbase connection with delay
+    console.log('⏳ Waiting 5 seconds before connecting to market data...');
+    setTimeout(() => {
+        connectToCoinbase();
+    }, 5000);
 });
 
 // Graceful shutdown
