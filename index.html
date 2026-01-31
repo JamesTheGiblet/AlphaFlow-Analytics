@@ -1481,6 +1481,14 @@
                     });
                 });
             }
+
+            // Tally Form Submission Redirect
+            window.addEventListener('message', (e) => {
+                // Check if the message is from Tally and indicates a successful submission
+                if (e.data && (e.data.event === 'Tally.FormSubmitted' || e.data === 'Tally.FormSubmitted')) {
+                    window.location.href = 'alphaflow-dashboard.html';
+                }
+            });
         });
     </script>
 </body>

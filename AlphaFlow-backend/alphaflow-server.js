@@ -52,6 +52,11 @@ app.get('/alphaflow-backtesting.html', (req, res) => {
         if (err) console.error('Error serving alphaflow-backtesting.html:', err);
     });
 });
+app.get('/alphaflow-dashboard.html', (req, res) => {
+    res.sendFile(path.join(parentDir, 'alphaflow-dashboard.html'), (err) => {
+        if (err) console.error('Error serving alphaflow-dashboard.html:', err);
+    });
+});
 app.get('/pricing', (req, res) => {
     res.sendFile(path.join(parentDir, 'index.html'), (err) => {
         if (err) console.error('Error serving index.html:', err);
