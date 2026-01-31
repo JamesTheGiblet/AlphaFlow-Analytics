@@ -219,6 +219,13 @@ if (document.getElementById('soupCanvas')) {
                 console.log('Received initial market state');
             } else if (data.type === 'ticker_update') {
                 handleBackendUpdate(data);
+            } else if (data.type === 'batch_update') {
+                Object.keys(data.updates).forEach(coin => {
+                    handleBackendUpdate({
+                        coin: coin,
+                        data: data.updates[coin]
+                    });
+                });
             }
         };
         

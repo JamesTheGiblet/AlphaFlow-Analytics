@@ -71,9 +71,10 @@ const COINS = [
     'LTC-USD', '1INCH-USD', 'BAT-USD', 'COMP-USD'
 ];
 
-const MOVE_THRESHOLD = 0.015; // 1.5% move threshold
+const MOVE_THRESHOLD = 0.02; // 2.0% move threshold (Increased to reduce noise)
 const LAG_WINDOW = 300000; // 5 minutes
 const SAVE_INTERVAL = 60000; // Save data every 60 seconds
+const BROADCAST_INTERVAL = 500; // Batch updates every 500ms
 
 // Data storage
 let marketData = {
@@ -88,6 +89,8 @@ let marketData = {
     },
     coinConfig: COINS
 };
+
+let pendingUpdates = {}; // Buffer for batched updates
 
 // Initialize data structures
 function initializeData() {
@@ -233,12 +236,9 @@ function processTickerUpdate(ticker) {
                         changePercent: changePercent,
                         magnitudeRatio: magnitudeRatio
                     };
-                    
-                    console.log(`⚡  followed ${leaderEvent.leader} after ${(lagTime/1000).toFixed(1)}s`);
                 } else {
                     marketData.causalityMatrix[leaderEvent.leader][coin].missedFollows++;
                     marketData.statistics.divergenceEvents++;
-                    console.log(`⚠️ DIVERGENCE:  moved opposite to ${leaderEvent.leader}`);
                 }
             }
         }
@@ -246,14 +246,8 @@ function processTickerUpdate(ticker) {
     
     marketData.statistics.totalTicks++;
     
-    // Broadcast to connected frontend clients
-    broadcastToClients({
-        type: 'ticker_update',
-        coin: coin,
-        data: marketData.prices[coin],
-        timestamp: timestamp,
-        leaderEvents: marketData.leaderEvents.length
-    });
+    // Queue update for batch broadcast
+    pendingUpdates[coin] = marketData.prices[coin];
 }
 
 // WebSocket server for frontend clients
@@ -343,6 +337,20 @@ if (!fs.existsSync(DATA_DIR)) {
 
 // Set up periodic data saving
 setInterval(saveData, SAVE_INTERVAL);
+
+// Set up periodic client broadcasting
+setInterval(() => {
+    const coins = Object.keys(pendingUpdates);
+    if (coins.length > 0) {
+        broadcastToClients({
+            type: 'batch_update',
+            updates: pendingUpdates,
+            timestamp: Date.now(),
+            leaderEvents: marketData.leaderEvents.length
+        });
+        pendingUpdates = {};
+    }
+}, BROADCAST_INTERVAL);
 
 // REST API Endpoints
 app.get('/api/market/prices', (req, res) => {
