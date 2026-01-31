@@ -1,4 +1,5 @@
 // alphaflow-server.js
+require('dotenv').config();
 const http = require('http');
 const express = require('express');
 const WebSocket = require('ws');
@@ -55,6 +56,11 @@ app.get('/alphaflow-backtesting.html', (req, res) => {
 app.get('/alphaflow-dashboard.html', (req, res) => {
     res.sendFile(path.join(parentDir, 'alphaflow-dashboard.html'), (err) => {
         if (err) console.error('Error serving alphaflow-dashboard.html:', err);
+    });
+});
+app.get('/alphaflow-api-docs.html', (req, res) => {
+    res.sendFile(path.join(parentDir, 'alphaflow-api-docs.html'), (err) => {
+        if (err) console.error('Error serving alphaflow-api-docs.html:', err);
     });
 });
 app.get('/pricing', (req, res) => {
@@ -401,6 +407,27 @@ setInterval(() => {
         pendingUpdates = {};
     }
 }, BROADCAST_INTERVAL);
+
+// API Security Middleware
+const API_KEY = process.env.API_KEY || 'alphaflow-demo-key-2024';
+
+const authenticateApiKey = (req, res, next) => {
+    // Skip auth for health check (req.path is relative to mount point '/api')
+    if (req.path === '/health') return next();
+    
+    const apiKey = req.headers['x-api-key'] || req.query.api_key;
+    
+    if (!apiKey || apiKey !== API_KEY) {
+        return res.status(401).json({
+            success: false,
+            error: 'Unauthorized: Invalid or missing API key'
+        });
+    }
+    next();
+};
+
+// Apply security to API routes
+app.use('/api', authenticateApiKey);
 
 // REST API Endpoints
 app.get('/api/market/prices', (req, res) => {

@@ -300,7 +300,9 @@ if (document.getElementById('soupCanvas')) {
 
     async function fetchCausalityData() {
         try {
-            const response = await fetch(`${API_URL}/causality/best-pairs`);
+            const response = await fetch(`${API_URL}/causality/best-pairs`, {
+                headers: { 'x-api-key': 'alphaflow-demo-key-2024' }
+            });
             const data = await response.json();
             
             if (data.success && data.pairs) {

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlphaFlow API Documentation</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Specific styles for API docs */
+        .api-section {
+            margin-bottom: 3rem;
+        }
+        .endpoint-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        .endpoint-header {
+            padding: 1rem 1.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .method-badge {
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+        .method-get { background: rgba(37, 99, 235, 0.2); color: var(--primary-blue); }
+        .endpoint-path {
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+        .endpoint-body {
+            padding: 1.5rem;
+        }
+        .param-table {
+            width: 100%;
+            margin: 1rem 0;
+            border-collapse: collapse;
+        }
+        .param-table th { text-align: left; color: var(--text-tertiary); font-size: 0.8rem; padding-bottom: 0.5rem; }
+        .param-table td { padding: 0.5rem 0; font-size: 0.9rem; border-top: 1px solid var(--border-light); }
+        .code-block {
+            background: #0d0e12;
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.85rem;
+            color: #a5b3ce;
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+        .endpoint-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        .api-response {
+            margin-top: 1rem;
+            display: none;
+            border-top: 1px solid var(--border-light);
+            padding-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="gradient-bg"></div>
+    
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="alphaflow-dashboard.html" class="logo">
+                <div class="logo-icon">α</div>
+                AlphaFlow Analytics
+            </a>
+            
+            <div class="nav-links">
+                <a href="alphaflow-dashboard.html" class="nav-link">Dashboard</a>
+                <a href="alphaflow-dashboard.html" class="nav-link">Live Signals</a>
+                <a href="alphaflow-backtesting.html" class="nav-link">Backtesting</a>
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-link active">API ▾</a>
+                    <div class="dropdown-menu">
+                        <a href="alphaflow-api-docs.html" class="dropdown-item">Documentation</a>
+                        <a href="#" class="dropdown-item">System Status</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="nav-actions">
+                <button class="btn btn-primary btn-sm">Get API Key</button>
+            </div>
+            <button class="mobile-menu-btn">☰</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>API Documentation</h1>
+            <p class="page-subtitle">
+                Integrate AlphaFlow's institutional-grade causality signals directly into your trading algorithms.
+            </p>
+        </div>
+
+        <div class="dashboard" style="grid-template-columns: 250px 1fr;">
+            <!-- Sidebar Navigation -->
+            <div class="sidebar">
+                <div class="config-card">
+                    <div class="config-title">Contents</div>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <a href="#market-data" class="nav-link" style="padding: 0.5rem 0;">Market Data</a>
+                        <a href="#causality" class="nav-link" style="padding: 0.5rem 0;">Causality Metrics</a>
+                        <a href="#system" class="nav-link" style="padding: 0.5rem 0;">System</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="main-panel">
+                
+                <!-- Market Data Section -->
+                <section id="market-data" class="api-section">
+                    <h2 class="viz-title" style="margin-bottom: 1rem;">Market Data</h2>
+                    
+                    <!-- GET /api/market/prices -->
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-get">GET</span>
+                            <span class="endpoint-path">/api/market/prices</span>
+                        </div>
+                        <div class="endpoint-body">
+                            <p class="product-description">Retrieves the latest price snapshot and aggregate statistics for all tracked assets.</p>
+                            
+                            <div class="code-block">
+// Response
+{
+  "success": true,
+  "timestamp": 1706728451234,
+  "prices": {
+    "BTC-USD": {
+      "price": 42150.50,
+      "change": 120.50,
+      "changePercent": 0.28,
+      "lastUpdate": 1706728451000
+    },
+    ...
+  },
+  "statistics": {
+    "totalTicks": 15420,
+    "divergenceEvents": 45
+  }
+}
+                            </div>
+                            <div class="endpoint-actions">
+                                <button class="btn btn-secondary btn-sm" onclick="testEndpoint('/api/market/prices', this)">Try it out</button>
+                            </div>
+                            <div class="api-response">
+                                <div style="font-size: 0.8rem; color: var(--text-tertiary); margin-bottom: 0.5rem;">Live Response:</div>
+                                <div class="code-block response-content"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GET /api/market/history/:coin -->
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-get">GET</span>
+                            <span class="endpoint-path">/api/market/history/:coin</span>
+                        </div>
+                        <div class="endpoint-body">
+                            <p class="product-description">Returns the last 100 price points for a specific asset.</p>
+                            <table class="param-table">
+                                <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+                                <tbody>
+                                    <tr><td>coin</td><td>path</td><td>Product ID (e.g., BTC-USD)</td></tr>
+                                </tbody>
+                            </table>
+                            <div class="code-block">
+// GET /api/market/history/ETH-USD
+{
+  "success": true,
+  "coin": "ETH-USD",
+  "history": [2250.10, 2251.00, 2249.80, ...]
+}
+                            </div>
+                            <div class="endpoint-actions">
+                                <button class="btn btn-secondary btn-sm" onclick="testEndpoint('/api/market/history/BTC-USD', this)">Try it out (BTC-USD)</button>
+                            </div>
+                            <div class="api-response">
+                                <div style="font-size: 0.8rem; color: var(--text-tertiary); margin-bottom: 0.5rem;">Live Response:</div>
+                                <div class="code-block response-content"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Causality Section -->
+                <section id="causality" class="api-section">
+                    <h2 class="viz-title" style="margin-bottom: 1rem;">Causality Metrics</h2>
+
+                    <!-- GET /api/causality/best-pairs -->
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-get">GET</span>
+                            <span class="endpoint-path">/api/causality/best-pairs</span>
+                        </div>
+                        <div class="endpoint-body">
+                            <p class="product-description">Returns the top ranked leader-follower pairs based on statistical significance.</p>
+                            <table class="param-table">
+                                <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+                                <tbody>
+                                    <tr><td>minSamples</td><td>query</td><td>Minimum number of events required (default: 10)</td></tr>
+                                </tbody>
+                            </table>
+                            <div class="code-block">
+// Response
+{
+  "success": true,
+  "pairs": [
+    {
+      "leader": "CRV-USD",
+      "follower": "AAVE-USD",
+      "followRate": 0.865,
+      "avgLag": 4800,
+      "avgMagnitude": 0.72,
+      "sampleSize": 52
+    },
+    ...
+  ]
+}
+                            </div>
+                            <div class="endpoint-actions">
+                                <button class="btn btn-secondary btn-sm" onclick="testEndpoint('/api/causality/best-pairs', this)">Try it out</button>
+                            </div>
+                            <div class="api-response">
+                                <div style="font-size: 0.8rem; color: var(--text-tertiary); margin-bottom: 0.5rem;">Live Response:</div>
+                                <div class="code-block response-content"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GET /api/causality/matrix -->
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-get">GET</span>
+                            <span class="endpoint-path">/api/causality/matrix</span>
+                        </div>
+                        <div class="endpoint-body">
+                            <p class="product-description">Returns the full N x N causality matrix for all tracked assets.</p>
+                            <div class="code-block">
+// Response
+{
+  "success": true,
+  "matrix": {
+    "BTC-USD": {
+      "ETH-USD": { "followRate": 0.92, "avgLag": 1200, ... },
+      ...
+    },
+    ...
+  }
+}
+                            </div>
+                            <div class="endpoint-actions">
+                                <button class="btn btn-secondary btn-sm" onclick="testEndpoint('/api/causality/matrix', this)">Try it out</button>
+                            </div>
+                            <div class="api-response">
+                                <div style="font-size: 0.8rem; color: var(--text-tertiary); margin-bottom: 0.5rem;">Live Response:</div>
+                                <div class="code-block response-content"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- System Section -->
+                <section id="system" class="api-section">
+                    <h2 class="viz-title" style="margin-bottom: 1rem;">System</h2>
+
+                    <!-- GET /api/health -->
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge method-get">GET</span>
+                            <span class="endpoint-path">/api/health</span>
+                        </div>
+                        <div class="endpoint-body">
+                            <p class="product-description">Checks the status of the backend services and data feeds.</p>
+                            <div class="code-block">
+{
+  "status": "running",
+  "uptime": 3600500,
+  "coinsTracked": 24,
+  "coinbaseConnected": true
+}
+                            </div>
+                            <div class="endpoint-actions">
+                                <button class="btn btn-secondary btn-sm" onclick="testEndpoint('/api/health', this)">Try it out</button>
+                            </div>
+                            <div class="api-response">
+                                <div style="font-size: 0.8rem; color: var(--text-tertiary); margin-bottom: 0.5rem;">Live Response:</div>
+                                <div class="code-block response-content"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+    <script>
+        async function testEndpoint(url, btn) {
+            const card = btn.closest('.endpoint-card');
+            const responseContainer = card.querySelector('.api-response');
+            const codeBlock = responseContainer.querySelector('.response-content');
+            
+            // Loading state
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Requesting...';
+            responseContainer.style.display = 'block';
+            codeBlock.textContent = 'Loading...';
+            
+            try {
+                const res = await fetch(url, {
+                    headers: { 'x-api-key': 'alphaflow-demo-key-2024' }
+                });
+                const data = await res.json();
+                codeBlock.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                codeBlock.textContent = 'Error: ' + err.message;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        }
+    </script>
+</body>
+</html>
