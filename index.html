@@ -236,6 +236,16 @@
             box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
         }
 
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
         /* Hero Section */
         .hero {
             min-height: 100vh;
@@ -889,7 +899,26 @@
 
         @media (max-width: 768px) {
             .nav-links {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: rgba(10, 11, 20, 0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                padding: 2rem;
+                gap: 2rem;
+                border-bottom: 1px solid var(--border-light);
+                text-align: center;
                 display: none;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .mobile-menu-btn {
+                display: block;
             }
             
             .hero-title {
@@ -951,6 +980,7 @@
                 <div class="logo-icon">α</div>
                 AlphaFlow Analytics
             </a>
+            <button class="mobile-menu-btn">☰</button>
             <div class="nav-links">
                 <a href="#features" class="nav-link">Features</a>
                 <a href="#demo" class="nav-link">Demo</a>
@@ -1489,6 +1519,17 @@
                     window.location.href = 'alphaflow-dashboard.html';
                 }
             });
+
+            // Mobile Menu Toggle
+            const mobileBtn = document.querySelector('.mobile-menu-btn');
+            const navLinks = document.querySelector('.nav-links');
+            
+            if (mobileBtn) {
+                mobileBtn.addEventListener('click', () => {
+                    navLinks.classList.toggle('active');
+                    mobileBtn.textContent = navLinks.classList.contains('active') ? '✕' : '☰';
+                });
+            }
         });
     </script>
 </body>
