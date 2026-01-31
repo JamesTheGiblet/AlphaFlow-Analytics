@@ -44,8 +44,10 @@ function showNotification(message, type) {
 
 if (document.getElementById('soupCanvas')) {
     // Configuration
-    const WS_URL = 'wss://alphaflow-analytics-production.up.railway.app';
-    const API_URL = 'https://alphaflow-analytics-production.up.railway.app/api';
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = window.location.host;
+    const WS_URL = `${protocol}//${host}`;
+    const API_URL = '/api';
 
     // Professional configuration
     const ASSET_CLASSES = {
