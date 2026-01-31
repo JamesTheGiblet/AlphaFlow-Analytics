@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlphaFlow | Institutional Causality Analytics</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="gradient-bg"></div>
+    
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <div class="logo-icon">α</div>
+                AlphaFlow Analytics
+            </a>
+            
+            <div class="nav-links">
+                <a href="#" class="nav-link active">Dashboard</a>
+                <a href="#" class="nav-link">Causality Maps</a>
+                <a href="#" class="nav-link">Market Data</a>
+                <a href="#" class="nav-link">Research</a>
+                <a href="#" class="nav-link">API</a>
+            </div>
+            
+            <div class="nav-actions">
+                <span class="status-badge active">
+                    <div class="status-dot"></div>
+                    Live Data
+                </span>
+                <button class="btn btn-primary btn-sm">Request Demo</button>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>Causality Analytics Dashboard</h1>
+            <p class="page-subtitle">
+                Real-time detection of cross-asset causality flows and predictive market signals.
+                Used by 47+ institutional clients for alpha generation and risk management.
+            </p>
+        </div>
+        
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-icon">⏱️</div>
+                    <div>
+                        <div class="metric-title">Avg Lag Time</div>
+                        <div class="metric-subtitle">Leader → Follower Response</div>
+                    </div>
+                </div>
+                <div class="metric-value" id="avgLagTime">147ms</div>
+                <div class="metric-trend">
+                    <span class="stat-change positive">↓ 12ms</span>
+                    <span class="value-neutral">vs. 7-day avg</span>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-icon">📊</div>
+                    <div>
+                        <div class="metric-title">Signal Accuracy</div>
+                        <div class="metric-subtitle">1-minute predictions</div>
+                    </div>
+                </div>
+                <div class="metric-value" id="signalAccuracy">94.7%</div>
+                <div class="metric-trend">
+                    <span class="stat-change positive">↑ 2.1%</span>
+                    <span class="value-neutral">vs. yesterday</span>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-icon">🔗</div>
+                    <div>
+                        <div class="metric-title">Active Correlations</div>
+                        <div class="metric-subtitle">Statistical significance >0.8</div>
+                    </div>
+                </div>
+                <div class="metric-value" id="activeCorrelations">42</div>
+                <div class="metric-trend">
+                    <span class="stat-change positive">↑ 8</span>
+                    <span class="value-neutral">this session</span>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-icon">🚨</div>
+                    <div>
+                        <div class="metric-title">Divergence Events</div>
+                        <div class="metric-subtitle">Last 24 hours</div>
+                    </div>
+                </div>
+                <div class="metric-value" id="divergenceEvents">127</div>
+                <div class="metric-trend">
+                    <span class="stat-change negative">↑ 18%</span>
+                    <span class="value-neutral">volatility increase</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dashboard">
+            <div class="viz-container">
+                <div class="viz-header">
+                    <div class="viz-title">Causality Network Map</div>
+                    <div class="viz-controls">
+                        <button class="btn btn-secondary btn-sm" onclick="toggleParticles()">
+                            <span id="particleToggle">Hide Particles</span>
+                        </button>
+                        <label for="vizMode" class="visually-hidden">Visualization Mode</label>
+                        <select id="vizMode" name="vizMode" aria-label="Visualization Mode">
+                            <option value="correlation">Correlation Strength</option>
+                            <option value="lag">Lag Time</option>
+                            <option value="volume">Signal Volume</option>
+                            <option value="momentum">Price Momentum</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="viz-canvas">
+                    <canvas id="soupCanvas"></canvas>
+                </div>
+            </div>
+            
+            <div class="data-products">
+                <div class="product-card premium">
+                    <div class="product-header">
+                        <div class="product-title">AlphaFlow Pro Signals</div>
+                        <span class="product-badge">PRO</span>
+                    </div>
+                    <p class="product-description">
+                        Real-time causality alerts delivered via WebSocket API. Includes lag prediction, 
+                        momentum scoring, and divergence detection.
+                    </p>
+                    <div class="product-stats">
+                        <div class="stat">
+                            <div class="stat-label">Avg Signal Lead</div>
+                            <div class="stat-value">3.2s</div>
+                            <div class="stat-change positive">+0.4s</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Today's Signals</div>
+                            <div class="stat-value">1,847</div>
+                            <div class="stat-change positive">+12%</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-block" type="button">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="icon-margin-right">
+                            <path d="M4 6H2V2h12v4h-2V4H4v2zm8 2h2v6H2V8h2v4h8V8z"/>
+                        </svg>
+                        Download Sample Data
+                    </button>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-header">
+                        <div class="product-title">Market Microstructure</div>
+                        <span class="status-badge recording">LIVE</span>
+                    </div>
+                    <p class="product-description">
+                        Cross-exchange order flow analysis with causality mapping between 24 major crypto assets.
+                        Updated every 50ms.
+                    </p>
+                    <div class="product-stats">
+                        <div class="stat">
+                            <div class="stat-label">Assets Tracked</div>
+                            <div class="stat-value">24</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Update Frequency</div>
+                            <div class="stat-value">20Hz</div>
+                        </div>
+                    </div>
+                    <div class="table-header">
+                        <div class="table-title">Live Leaderboard</div>
+                    </div>
+                    <div id="leaderboardList">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-header">
+                        <div class="product-title">Causality Matrix Export</div>
+                    </div>
+                    <p class="product-description">
+                        Full causality matrix with lag times, follow rates, and magnitude ratios for institutional backtesting.
+                    </p>
+                    <div class="export-btn-group">
+                        <button class="btn btn-secondary export-btn" type="button" onclick="exportCSV()">
+                            Export CSV
+                        </button>
+                        <button class="btn btn-primary export-btn" type="button" onclick="exportJSON()">
+                            Export JSON
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">Lag Time Distribution (Last Hour)</div>
+                <div class="viz-controls">
+                    <select aria-label="Lag Time Distribution Range">
+                        <option>1 Hour</option>
+                        <option>24 Hours</option>
+                        <option>7 Days</option>
+                    </select>
+                </div>
+            </div>
+            <div class="chart-bar-bg">
+                <!-- Chart bars would go here -->
+                <div class="chart-bars">
+                    <div class="chart-bar chart-bar-40"></div>
+                    <div class="chart-bar chart-bar-60"></div>
+                    <div class="chart-bar chart-bar-85"></div>
+                    <div class="chart-bar chart-bar-95"></div>
+                    <div class="chart-bar chart-bar-70"></div>
+                    <div class="chart-bar chart-bar-50"></div>
+                    <div class="chart-bar chart-bar-30"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="data-table-container">
+            <div class="table-header">
+                <div class="table-title">Top Causality Pairs</div>
+                <div class="table-filters">
+                    <select aria-label="Sort Top Causality Pairs">
+                        <option>Sort by Follow Rate</option>
+                        <option>Sort by Lag Time</option>
+                        <option>Sort by Signal Volume</option>
+                    </select>
+                </div>
+            </div>
+            <table id="causalityTable">
+                <thead>
+                    <tr>
+                        <th>Leader → Follower</th>
+                        <th>Follow Rate</th>
+                        <th>Avg Lag</th>
+                        <th>Magnitude</th>
+                        <th>Signals (24h)</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="causalityTableBody">
+                    <!-- Filled by JS -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="footer">
+            <div>© 2024 AlphaFlow Analytics. Institutional-grade market microstructure data.</div>
+            <div class="footer-links">
+                <a href="#" class="footer-link">Privacy Policy</a>
+                <a href="#" class="footer-link">Terms of Service</a>
+                <a href="#" class="footer-link">API Documentation</a>
+                <a href="#" class="footer-link">Research Papers</a>
+                <a href="#" class="footer-link">Contact Sales</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

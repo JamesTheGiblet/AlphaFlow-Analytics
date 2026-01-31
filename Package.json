@@ -1,0 +1,19 @@
+{
+  "name": "AlphaFlow-backend",
+  "version": "1.0.0",
+  "description": "AlphaFlow Causality Detection Backend",
+  "main": "AlphaFlow-server.js",
+  "scripts": {
+    "start": "node AlphaFlow-server.js",
+    "dev": "nodemon AlphaFlow-server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "ws": "^8.13.0",
+    "axios": "^1.5.0",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlphaFlow Analytics | Institutional Causality Intelligence</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="gradient-bg"></div>
+    
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <div class="logo-icon">α</div>
+                AlphaFlow Analytics
+            </a>
+            
+            <div class="nav-links">
+                <a href="#" class="nav-link active">Dashboard</a>
+                <a href="#" class="nav-link">Live Signals</a>
+                <a href="alphaflow-backtesting.html" class="nav-link">Backtesting</a>
+                <a href="#" class="nav-link">Strategy Builder</a>
+                <a href="#" class="nav-link">API</a>
+            </div>
+            
+            <div class="nav-actions">
+                <span class="status-badge recording">
+                    <svg width="6" height="6" viewBox="0 0 6 6" fill="currentColor">
+                        <circle cx="3" cy="3" r="3"/>
+                    </svg>
+                    Live Recording
+                </span>
+                <button class="btn btn-primary btn-sm">Export Data</button>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="container">
+        <div class="page-header">
+            <h1>Institutional Causality Intelligence</h1>
+            <p class="page-subtitle">
+                Real-time detection of cross-asset lead-lag relationships and predictive signal generation.
+            </p>
+        </div>
+        
+        <div class="dashboard">
+            <!-- Main Visualization -->
+            <div class="viz-container">
+                <div class="viz-header">
+                    <div class="viz-title">Causality Network Topology</div>
+                    <div class="viz-controls">
+                        <select>
+                            <option>Force Directed</option>
+                            <option>Circular</option>
+                            <option>Hierarchical</option>
+                        </select>
+                        <button class="btn btn-secondary btn-sm" id="particleToggle" onclick="toggleParticles()">Hide Particles</button>
+                    </div>
+                </div>
+                <canvas id="soupCanvas" class="viz-canvas"></canvas>
+            </div>
+            
+            <!-- Data Products / Leaderboard -->
+            <div class="data-products">
+                <div class="product-card">
+                    <div class="product-header">
+                        <div class="product-title">Market Microstructure</div>
+                        <span class="product-badge">Live</span>
+                    </div>
+                    <div class="product-description">
+                        Real-time leader-follower pairs ranked by predictive accuracy and lag time.
+                    </div>
+                    
+                    <div id="leaderboardList">
+                        <!-- Populated by script.js -->
+                        <div style="padding: 1rem; text-align: center; color: var(--text-tertiary);">
+                            Connecting to backend...
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="product-card premium">
+                    <div class="product-header">
+                        <div class="product-title">Alpha Signals</div>
+                        <span class="product-badge">Premium</span>
+                    </div>
+                    <div class="product-stats">
+                        <div class="stat">
+                            <span class="stat-label">Active Signals</span>
+                            <span class="stat-value">12</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Win Rate (24h)</span>
+                            <span class="stat-value">78.4%</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" style="width: 100%;">Unlock Signals</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Metrics Grid -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="metric-title">Average Lag Time</div>
+                        <div class="metric-subtitle">Global Network</div>
+                    </div>
+                </div>
+                <div class="metric-value" id="avgLagTime">--ms</div>
+                <div class="metric-trend value-positive">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
+                        <polyline points="17 18 23 18 23 12"/>
+                    </svg>
+                    <span>-12ms vs avg</span>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="metric-title">Signal Accuracy</div>
+                        <div class="metric-subtitle">Last 24 Hours</div>
+                    </div>
+                </div>
+                <div class="metric-value" id="signalAccuracy">--%</div>
+                <div class="metric-trend value-positive">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                        <polyline points="17 6 23 6 23 12"/>
+                    </svg>
+                    <span>+2.4% vs avg</span>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="metric-title">Active Correlations</div>
+                        <div class="metric-subtitle">High Confidence (>0.8)</div>
+                    </div>
+                </div>
+                <div class="metric-value" id="activeCorrelations">--</div>
+                <div class="metric-trend value-neutral">
+                    <span>Stable</span>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="metric-title">Divergence Events</div>
+                        <div class="metric-subtitle">Detected Anomalies</div>
+                    </div>
+                </div>
+                <div class="metric-value" id="divergenceEvents">--</div>
+                <div class="metric-trend value-negative">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                        <polyline points="17 6 23 6 23 12"/>
+                    </svg>
+                    <span>+5 vs avg</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Data Table -->
+        <div class="data-table-container">
+            <div class="table-header">
+                <div class="table-title">Live Causality Matrix</div>
+                <div class="table-filters">
+                    <button class="btn btn-secondary btn-sm" onclick="exportCSV()">Export CSV</button>
+                    <button class="btn btn-secondary btn-sm" onclick="exportJSON()">Export JSON</button>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pair (Leader → Follower)</th>
+                        <th>Follow Rate</th>
+                        <th>Avg Lag</th>
+                        <th>Magnitude Ratio</th>
+                        <th>Signal Count</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="causalityTableBody">
+                    <!-- Populated by script.js -->
+                </tbody>
+            </table>
+        </div>
+        
+        <footer class="footer">
+            <div class="nav-container">
+                <div>© 2024 AlphaFlow Analytics. All rights reserved.</div>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Privacy Policy</a>
+                    <a href="#" class="footer-link">Terms of Service</a>
+                    <a href="#" class="footer-link">API Documentation</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Link to external script -->
+    <script src="script.js"></script>
+</body>
+</html>
