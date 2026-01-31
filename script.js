@@ -43,6 +43,10 @@ function showNotification(message, type) {
 // =========================================
 
 if (document.getElementById('soupCanvas')) {
+    // Configuration
+    const WS_URL = 'wss://alphaflow-analytics-production.up.railway.app';
+    const API_URL = 'https://alphaflow-analytics-production.up.railway.app/api';
+
     // Professional configuration
     const ASSET_CLASSES = {
         'MAJOR': ['BTC-USD', 'ETH-USD'],
@@ -192,8 +196,7 @@ if (document.getElementById('soupCanvas')) {
 
     function connectToBackend() {
         // Connect to our backend WebSocket
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        ws = new WebSocket(`${protocol}//${window.location.host}`);
+        ws = new WebSocket(WS_URL);
         
         ws.onopen = () => {
             showNotification('Connected to CryptoSoup Backend', 'success');
@@ -247,7 +250,7 @@ if (document.getElementById('soupCanvas')) {
 
     async function fetchCausalityData() {
         try {
-            const response = await fetch('http://localhost:3000/api/causality/best-pairs');
+            const response = await fetch(`${API_URL}/causality/best-pairs`);
             const data = await response.json();
             
             if (data.success && data.pairs) {
