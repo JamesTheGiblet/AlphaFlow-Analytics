@@ -29,12 +29,18 @@ app.get('/', (req, res) => {
 // 2. Handle favicon to prevent 404s
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 
-// 3. Serve static files from PARENT directory (styles.css, script.js)
-// We use path.resolve to get the absolute path, avoiding relative path issues
+// 3. Serve specific frontend files from PARENT directory
 const parentDir = path.resolve(__dirname, '..');
-console.log(`📂 Serving static files from: ${parentDir}`);
-console.log(`   - styles.css exists: ${fs.existsSync(path.join(parentDir, 'styles.css'))}`);
-app.use(express.static(parentDir));
+
+app.get('/styles.css', (req, res) => {
+    res.sendFile(path.join(parentDir, 'styles.css'));
+});
+app.get('/script.js', (req, res) => {
+    res.sendFile(path.join(parentDir, 'script.js'));
+});
+app.get('/alphaflow-backtesting.html', (req, res) => {
+    res.sendFile(path.join(parentDir, 'alphaflow-backtesting.html'));
+});
 
 // 4. Serve static files from public directory (assets, etc.)
 app.use(express.static(path.join(__dirname, 'public')));

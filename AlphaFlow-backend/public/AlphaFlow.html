@@ -52,12 +52,13 @@
                 <div class="viz-header">
                     <div class="viz-title">Causality Network Topology</div>
                     <div class="viz-controls">
-                        <select>
+                        <label for="layoutSelect" class="visually-hidden">Network Layout</label>
+                        <select id="layoutSelect" aria-label="Network Layout">
                             <option>Force Directed</option>
                             <option>Circular</option>
                             <option>Hierarchical</option>
                         </select>
-                        <button class="btn btn-secondary btn-sm" id="particleToggle" onclick="toggleParticles()">Hide Particles</button>
+                        <button type="button" class="btn btn-secondary btn-sm" id="particleToggle" onclick="toggleParticles()">Hide Particles</button>
                     </div>
                 </div>
                 <canvas id="soupCanvas" class="viz-canvas"></canvas>
@@ -76,7 +77,7 @@
                     
                     <div id="leaderboardList">
                         <!-- Populated by script.js -->
-                        <div style="padding: 1rem; text-align: center; color: var(--text-tertiary);">
+                        <div class="leaderboard-connecting">
                             Connecting to backend...
                         </div>
                     </div>
@@ -97,7 +98,7 @@
                             <span class="stat-value">78.4%</span>
                         </div>
                     </div>
-                    <button class="btn btn-primary" style="width: 100%;">Unlock Signals</button>
+                    <button class="btn btn-primary unlock-signals-btn" type="button">Unlock Signals</button>
                 </div>
             </div>
         </div>
