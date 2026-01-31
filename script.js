@@ -89,6 +89,8 @@ if (document.getElementById('soupCanvas')) {
     let causalityMatrix = {};
     let signalLog = [];
     let ws = null;
+    let showParticles = true;
+    let networkParticles = [];
 
     // Initialize canvas
     const canvas = document.getElementById('soupCanvas');
@@ -103,6 +105,19 @@ if (document.getElementById('soupCanvas')) {
 
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
+
+    // Mouse tracking for hover effects
+    let mousePos = { x: -1000, y: -1000 };
+    
+    canvas.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        mousePos.x = e.clientX - rect.left;
+        mousePos.y = e.clientY - rect.top;
+    });
+    
+    canvas.addEventListener('mouseleave', () => {
+        mousePos = { x: -1000, y: -1000 };
+    });
 
     // Initialize causality matrix
     function initCausalityMatrix() {
@@ -313,6 +328,8 @@ if (document.getElementById('soupCanvas')) {
         const width = canvas.width / devicePixelRatio;
         const height = canvas.height / devicePixelRatio;
         
+        let hoveredNode = null;
+
         // Clear canvas
         ctx.fillStyle = 'rgba(18, 20, 32, 0.5)';
         ctx.fillRect(0, 0, width, height);
@@ -378,6 +395,52 @@ if (document.getElementById('soupCanvas')) {
             }
         });
         
+        // Draw particles
+        if (showParticles) {
+            // Spawn new particles
+            pairs.forEach(pair => {
+                if (Math.random() < 0.2) { // 20% chance per frame
+                    // Dynamic speed based on lag: faster for lower lag (0-2000ms range)
+                    const normalizedLag = Math.min(Math.max(pair.avgLag, 0), 2000);
+                    const speedFactor = 1 - (normalizedLag / 2000);
+                    const dynamicSpeed = 0.01 + (speedFactor * 0.07);
+
+                    networkParticles.push({
+                        leader: pair.leader,
+                        follower: pair.follower,
+                        progress: 0,
+                        speed: dynamicSpeed + (Math.random() * 0.01),
+                        color: pair.avgLag < 200 ? '#06D6A0' : '#7C3AED'
+                    });
+                }
+            });
+
+            // Update and draw
+            for (let i = networkParticles.length - 1; i >= 0; i--) {
+                const p = networkParticles[i];
+                const from = nodes[p.leader];
+                const to = nodes[p.follower];
+
+                if (from && to) {
+                    p.progress += p.speed;
+                    if (p.progress >= 1) {
+                        networkParticles.splice(i, 1);
+                        continue;
+                    }
+
+                    const x = from.x + (to.x - from.x) * p.progress;
+                    const y = from.y + (to.y - from.y) * p.progress;
+
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 2, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    networkParticles.splice(i, 1);
+                }
+            }
+        }
+
         // Draw nodes
         Object.entries(nodes).forEach(([coin, node]) => {
             // Node glow
@@ -409,7 +472,74 @@ if (document.getElementById('soupCanvas')) {
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(coin.split('-')[0], node.x, node.y);
+            
+            // Check hover
+            const dx = mousePos.x - node.x;
+            const dy = mousePos.y - node.y;
+            if (dx * dx + dy * dy < node.size * node.size) {
+                hoveredNode = { coin, ...node };
+                canvas.style.cursor = 'pointer';
+            }
         });
+        
+        if (!hoveredNode) {
+            canvas.style.cursor = 'default';
+        }
+
+        // Draw tooltip
+        if (hoveredNode) {
+            const coin = hoveredNode.coin;
+            const priceData = prices[coin];
+            
+            if (priceData) {
+                const padding = 12;
+                const tooltipWidth = 180;
+                const tooltipHeight = 85;
+                
+                let tx = hoveredNode.x + 25;
+                let ty = hoveredNode.y - 25;
+                
+                // Keep inside canvas
+                if (tx + tooltipWidth > width) tx = hoveredNode.x - tooltipWidth - 25;
+                if (ty + tooltipHeight > height) ty = height - tooltipHeight - 10;
+                if (ty < 10) ty = 10;
+                
+                // Background
+                ctx.fillStyle = 'rgba(26, 28, 45, 0.95)';
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+                ctx.lineWidth = 1;
+                
+                ctx.beginPath();
+                if (ctx.roundRect) {
+                    ctx.roundRect(tx, ty, tooltipWidth, tooltipHeight, 8);
+                } else {
+                    ctx.rect(tx, ty, tooltipWidth, tooltipHeight);
+                }
+                ctx.fill();
+                ctx.stroke();
+                
+                // Text
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'top';
+                
+                // Coin Name
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 14px Inter';
+                ctx.fillText(coin, tx + padding, ty + padding);
+                
+                // Price
+                ctx.font = '13px Inter';
+                ctx.fillStyle = '#9CA3AF';
+                const priceStr = priceData.price < 1 ? priceData.price.toFixed(4) : priceData.price.toFixed(2);
+                ctx.fillText(`$${priceStr}`, tx + padding, ty + padding + 22);
+                
+                // Change
+                const change = priceData.changePercent || 0;
+                ctx.fillStyle = change >= 0 ? '#10B981' : '#EF4444';
+                ctx.font = 'bold 13px Inter';
+                ctx.fillText(`${change >= 0 ? '▲' : '▼'} ${Math.abs(change).toFixed(2)}% (24h)`, tx + padding, ty + padding + 42);
+            }
+        }
     }
 
     // Export functions
@@ -462,9 +592,8 @@ if (document.getElementById('soupCanvas')) {
 
     window.toggleParticles = function() {
         const btn = document.getElementById('particleToggle');
-        btn.textContent = btn.textContent === 'Hide Particles' ? 'Show Particles' : 'Hide Particles';
-        // Toggle visualization mode
-        drawNetwork();
+        showParticles = !showParticles;
+        btn.textContent = showParticles ? 'Hide Particles' : 'Show Particles';
     }
 
     // Initialize with sample data
