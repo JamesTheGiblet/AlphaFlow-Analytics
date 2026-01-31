@@ -270,6 +270,8 @@ function broadcastToClients(data) {
 }
 
 // Data persistence
+const DATA_DIR = path.join(__dirname, 'data');
+
 function saveData() {
     const dataToSave = {
         marketData: marketData,
@@ -277,17 +279,16 @@ function saveData() {
     };
     
     const filename = `cryptosoup_data_${Date.now()}.json`;
-    fs.writeFileSync(path.join('data', filename), JSON.stringify(dataToSave, null, 2));
+    fs.writeFileSync(path.join(DATA_DIR, filename), JSON.stringify(dataToSave, null, 2));
     
     console.log(`💾 Data saved to ${filename}`);
     
     // Keep only last 24 hours of data files
-    const dataDir = 'data';
-    if (fs.existsSync(dataDir)) {
-        const files = fs.readdirSync(dataDir);
+    if (fs.existsSync(DATA_DIR)) {
+        const files = fs.readdirSync(DATA_DIR);
         const now = Date.now();
         files.forEach(file => {
-            const filePath = path.join(dataDir, file);
+            const filePath = path.join(DATA_DIR, file);
             const stats = fs.statSync(filePath);
             if (now - stats.mtimeMs > 24 * 60 * 60 * 1000) { // Older than 24 hours
                 fs.unlinkSync(filePath);
@@ -298,8 +299,8 @@ function saveData() {
 }
 
 // Create data directory if it doesn't exist
-if (!fs.existsSync('data')) {
-    fs.mkdirSync('data');
+if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR);
 }
 
 // Set up periodic data saving
