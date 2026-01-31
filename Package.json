@@ -1,5 +1,5 @@
 {
-  "name": "alphaflow-analytics",
+  "name": "alphaflow-backend",
   "version": "1.0.0",
   "description": "AlphaFlow Causality Detection Backend (Node.js)",
   "main": "AlphaFlow-backend/alphaflow-server.js",

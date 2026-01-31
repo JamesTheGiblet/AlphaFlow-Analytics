@@ -23,7 +23,12 @@ app.use((req, res, next) => {
 
 // 1. Serve the Dashboard HTML on root (Priority over static index.html)
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'AlphaFlow.html'));
+    res.sendFile(path.join(__dirname, 'public', 'AlphaFlow.html'), (err) => {
+        if (err) {
+            console.error('Error serving AlphaFlow.html:', err);
+            res.status(err.status || 500).end();
+        }
+    });
 });
 
 // 2. Handle favicon to prevent 404s
@@ -33,13 +38,25 @@ app.get('/favicon.ico', (req, res) => res.status(204).end());
 const parentDir = path.resolve(__dirname, '..');
 
 app.get('/styles.css', (req, res) => {
-    res.sendFile(path.join(parentDir, 'styles.css'));
+    res.sendFile(path.join(parentDir, 'styles.css'), (err) => {
+        if (err) {
+            console.error('Error serving styles.css:', err);
+            res.status(err.status || 404).end();
+        }
+    });
 });
 app.get('/script.js', (req, res) => {
-    res.sendFile(path.join(parentDir, 'script.js'));
+    res.sendFile(path.join(parentDir, 'script.js'), (err) => {
+        if (err) {
+            console.error('Error serving script.js:', err);
+            res.status(err.status || 404).end();
+        }
+    });
 });
 app.get('/alphaflow-backtesting.html', (req, res) => {
-    res.sendFile(path.join(parentDir, 'alphaflow-backtesting.html'));
+    res.sendFile(path.join(parentDir, 'alphaflow-backtesting.html'), (err) => {
+        if (err) console.error('Error serving alphaflow-backtesting.html:', err);
+    });
 });
 
 // 4. Serve static files from public directory (assets, etc.)
@@ -278,22 +295,33 @@ function broadcastToClients(data) {
 // Data persistence
 const DATA_DIR = path.join(__dirname, 'data');
 
-function saveData() {
+function saveData(skipCleanup = false) {
     const dataToSave = {
         marketData: marketData,
         timestamp: Date.now()
     };
     
     const filename = `cryptosoup_data_${Date.now()}.json`;
-    fs.writeFileSync(path.join(DATA_DIR, filename), JSON.stringify(dataToSave, null, 2));
+    const filePath = path.join(DATA_DIR, filename);
+    const tempFilePath = `${filePath}.tmp`;
     
-    console.log(`💾 Data saved to ${filename}`);
+    try {
+        // Write to temp file first to prevent corruption
+        fs.writeFileSync(tempFilePath, JSON.stringify(dataToSave, null, 2));
+        fs.renameSync(tempFilePath, filePath);
+        console.log(`💾 Data saved to ${filename}`);
+    } catch (error) {
+        console.error('Error saving data:', error);
+    }
     
+    if (skipCleanup) return;
+
     // Keep only last 24 hours of data files
     if (fs.existsSync(DATA_DIR)) {
         const files = fs.readdirSync(DATA_DIR);
         const now = Date.now();
         files.forEach(file => {
+            if (!file.endsWith('.json')) return;
             const filePath = path.join(DATA_DIR, file);
             const stats = fs.statSync(filePath);
             if (now - stats.mtimeMs > 24 * 60 * 60 * 1000) { // Older than 24 hours
@@ -306,7 +334,11 @@ function saveData() {
 
 // Create data directory if it doesn't exist
 if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR);
+    try {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+    } catch (error) {
+        console.error(`Error creating data directory at ${DATA_DIR}:`, error);
+    }
 }
 
 // Set up periodic data saving
@@ -428,7 +460,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // Start the server
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 CryptoSoup Backend running on port ${PORT}`);
     console.log(`� Tracking ${COINS.length} coins`);
     console.log(`🔌 WebSocket server attached to HTTP server`);
@@ -440,7 +472,7 @@ server.listen(PORT, () => {
 // Graceful shutdown
 process.on('SIGINT', () => {
     console.log('Shutting down...');
-    saveData();
+    saveData(true); // Skip cleanup to prevent timeout
     
     if (coinbaseWS) {
         coinbaseWS.close();
